@@ -1,0 +1,159 @@
+.previous-startups {
+  background-color: #0a0a0a;
+  color: #fff;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.previous-startups h2 {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  font-weight: 900;
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  letter-spacing: 0.1em;
+}
+
+.previous-startups > p {
+  font-size: 1.2rem;
+  color: #b0b0b0;
+  margin-bottom: 50px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+ .startups-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* increase row height so the bento/cards better fill available space */
+  grid-auto-rows: 280px;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 1200px;
+}
+
+.startup-card {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  background: radial-gradient(circle at top left, #333, #000);
+}
+
+.startup-card:nth-child(1) {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.startup-card:nth-child(2),
+.startup-card:nth-child(3) {
+  grid-column: span 2;
+}
+
+.startup-card:nth-child(4) {
+  grid-row: span 2;
+}
+
+.startup-card:nth-child(8) {
+  grid-column: span 2;
+}
+
+.startup-image-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.startup-image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+.startup-card:hover img {
+  transform: scale(1.05);
+  filter: brightness(0.7);
+}
+
+.startup-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 18px 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent 60%);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.startup-card:hover .startup-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.startup-overlay h3 {
+  font-size: 1.3rem;
+  margin: 0 0 6px 0;
+  font-weight: 700;
+  color: #fff;
+}
+
+.fund-raised {
+  font-size: 0.95rem;
+  color: #e0e0e0;
+  font-weight: 400;
+  margin: 0;
+}
+
+.know-more-btn {
+  padding: 12px 35px;
+  background-color: #fff;
+  color: #000;
+  text-decoration: none;
+  border-radius: 30px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.know-more-btn:hover {
+  background-color: #000;
+  color: #fff;
+  border: 2px solid #fff;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .previous-startups h2 {
+    font-size: 2rem;
+  }
+
+  .startups-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 220px;
+    gap: 14px;
+  }
+
+  .startup-card:nth-child(1),
+  .startup-card:nth-child(2),
+  .startup-card:nth-child(3),
+  .startup-card:nth-child(4) {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+
+  .startup-overlay h3 {
+    font-size: 1.1rem;
+  }
+
+  .fund-raised {
+    font-size: 0.85rem;
+  }
+}
