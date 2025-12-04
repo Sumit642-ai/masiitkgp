@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import './PreviousInvestors.css';
 
 // Helper to derive display name from filename
@@ -89,32 +89,153 @@ const investors2023 = [
   },
 ];
 
-const investors = [
-  ...investors2025.map(({ file, designation, company }) => ({
-    name: makeName(file),
-    image: `/2025/${file}`,
-    designation,
-    company,
-  })),
-  ...investors2024.map(({ file, designation, company }) => ({
-    name: makeName(file),
-    image: `/2024/${file}`,
-    designation,
-    company,
-  })),
-  ...investors2023.map(({ file, designation, company }) => ({
-    name: makeName(file),
-    image: `/2023/${file}`,
-    designation,
-    company,
-  })),
+const investorGroups = [
+  { folder: '2025', list: investors2025 },
+  { folder: '2024', list: investors2024 },
+  { folder: '2023', list: investors2023 },
 ];
 
+const investors = investorGroups
+  .flatMap(({ folder, list }) =>
+    list.map(({ file, designation, company }) => ({
+      name: makeName(file),
+      image: `/${folder}/${file}`,
+      designation,
+      company,
+    }))
+  )
+  .reduce((unique, investor) => {
+    if (!unique.some(({ name }) => name === investor.name)) {
+      unique.push(investor);
+    }
+    return unique;
+  }, []);
+
 const PreviousInvestors = () => {
+  const carouselRef = useRef(null);
+
+  useEffect(() => {
+    const container = carouselRef.current;
+    if (!container) {
+      return undefined;
+    }
+
+    const mq = window.matchMedia('(max-width: 768px)');
+    let intervalId = null;
+    let scrollAmount = 0;
+    let cardNodes = [];
+
+    const stopAutoScroll = () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+
+    const updateCardMetrics = () => {
+      cardNodes = container.querySelectorAll('.investor-card');
+      if (!cardNodes.length) {
+        return false;
+      }
+
+      const styles = window.getComputedStyle(container);
+      const gap = parseFloat(styles.columnGap || styles.gap || '0') || 0;
+      scrollAmount = cardNodes[0].offsetWidth + gap;
+      return scrollAmount > 0;
+    };
+
+    const startAutoScroll = (snapToStart = false) => {
+      stopAutoScroll();
+
+      if (!updateCardMetrics()) {
+        return;
+      }
+
+      intervalId = window.setInterval(() => {
+        if (!cardNodes.length || scrollAmount <= 0) {
+          return;
+        }
+
+        const maxScroll = container.scrollWidth - container.clientWidth;
+        const currentScroll = container.scrollLeft;
+
+        // If we've reached the end, loop back to start
+        if (currentScroll >= maxScroll - 10) {
+          container.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          container.scrollTo({
+            left: currentScroll + scrollAmount,
+            behavior: 'smooth',
+          });
+        }
+      }, 3000);
+
+      if (snapToStart) {
+        container.scrollTo({ left: 0, behavior: 'auto' });
+      }
+    };
+
+    const handleResize = () => {
+      if (mq.matches) {
+        if (updateCardMetrics() && scrollAmount > 0) {
+          const nearestIndex = Math.round(container.scrollLeft / scrollAmount);
+          container.scrollLeft = nearestIndex * scrollAmount;
+        }
+      }
+    };
+
+    const handleChange = (e) => {
+      if (e.matches) {
+        startAutoScroll(true);
+      } else {
+        stopAutoScroll();
+      }
+    };
+
+    // Only start auto-scroll on mobile
+    if (mq.matches) {
+      startAutoScroll(true);
+    }
+
+    mq.addEventListener('change', handleChange);
+    window.addEventListener('resize', handleResize);
+
+    const handlePointerDown = () => stopAutoScroll();
+    const handlePointerUp = () => {
+      if (mq.matches && !intervalId) {
+        // Restart auto-scroll after 2 seconds of no interaction
+        setTimeout(() => {
+          if (!intervalId && mq.matches) {
+            startAutoScroll();
+          }
+        }, 2000);
+      }
+    };
+
+    container.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    container.addEventListener('touchstart', handlePointerDown, { passive: true });
+    container.addEventListener('pointerup', handlePointerUp, { passive: true });
+    container.addEventListener('touchend', handlePointerUp, { passive: true });
+    container.addEventListener('pointercancel', handlePointerUp, { passive: true });
+    container.addEventListener('touchcancel', handlePointerUp, { passive: true });
+
+    return () => {
+      stopAutoScroll();
+      mq.removeEventListener('change', handleChange);
+      window.removeEventListener('resize', handleResize);
+      container.removeEventListener('pointerdown', handlePointerDown);
+      container.removeEventListener('touchstart', handlePointerDown);
+      container.removeEventListener('pointerup', handlePointerUp);
+      container.removeEventListener('touchend', handlePointerUp);
+      container.removeEventListener('pointercancel', handlePointerUp);
+      container.removeEventListener('touchcancel', handlePointerUp);
+    };
+  }, []);
+
   return (
     <div className="previous-investors">
       <h2>Previous Investors</h2>
-      <div className="investors-grid">
+      <div ref={carouselRef} className="investors-grid">
         {investors.map((investor, index) => (
           <div key={index} className="investor-card">
             <div className="investor-image-container">

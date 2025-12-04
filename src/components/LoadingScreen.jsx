@@ -34,7 +34,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     <div className={`loading-screen ${fadeOut ? 'fade-out' : ''}`}>
       <div className="loading-content">
         <div className="loading-logo">
-          <img src="/public/MASlogo.png" alt="MAS Logo" className="loading-logo-img" />
+          <img src="/MASLogo.png" alt="MAS Logo" className="loading-logo-img" />
         </div>
         
        

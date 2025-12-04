@@ -7,6 +7,16 @@
   position: relative;
 }
 
+.page main {
+  display: flex;
+  flex-direction: column;
+}
+
+.page main > div {
+  position: relative;
+  z-index: 1;
+}
+
 /* Subtle neon frame */
 .page::before {
   content: "";
